@@ -46,7 +46,7 @@ int main(int argc, char** argv){
                expr    : <number> | '(' <operator> <expr>+ ')' ; \
                lispy   : /^/ <operator> <expr>+ /$/ ;            \
             ",
-	    Number, Operator, Lispy);
+	    Number, Operator, Expr, Lispy);
 
   /* print version and exit information */
   puts("Lispy Version 0.0.0.0.1");
@@ -59,7 +59,18 @@ int main(int argc, char** argv){
     char* input = readline("lispy> ");
     add_history(input);
 
-    printf("No you're a %s\n", input);
+    /* attempt to parse the user info */
+    mpc_result_t r;
+    if(mpc_parse("<stdin>", input, Lispy, &r)){
+      /* on success print the AST */
+      mpc_ast_print(r.output);
+      mpc_ast_delete(r.output);
+    } else {
+      /* otherwise print the error */
+      mpc_err_print(r.error);
+      mpc_err_delete(r.error);
+    }
+    
     free(input);
 
   }
@@ -69,6 +80,11 @@ int main(int argc, char** argv){
   return 0;
 
 }
+
+
+
+
+
 
 
 
